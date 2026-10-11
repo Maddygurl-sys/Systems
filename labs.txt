@@ -1,0 +1,574 @@
+﻿Restful api:
+
+
+cd HospitalAPI
+npm init -y
+npm install express
+touch index.js
+
+
+
+
+const express = require('express');
+const app = express();
+
+
+app.use(express.json());
+
+
+let patients = [
+    { id: 1, name: 'Arun', age: 25, disease: 'Fever' },
+    { id: 2, name: 'Priya', age: 30, disease: 'Cold' }
+];
+
+
+// Get all patients
+app.get('/api/patients', (req, res) => {
+    res.json(patients);
+});
+
+
+// Get one patient
+app.get('/api/patients/:id', (req, res) => {
+    const patient = patients.find(p => p.id === Number(req.params.id));
+
+
+    if (!patient) {
+        return res.status(404).send('Patient not found');
+    }
+
+
+    res.json(patient);
+});
+
+
+// Add a patient
+app.post('/api/patients', (req, res) => {
+    const patient = {
+        id: patients.length
+            ? Math.max(...patients.map(p => p.id)) + 1 : 1,
+        name: req.body.name,
+        age: req.body.age,
+        disease: req.body.disease
+    };
+
+
+    patients.push(patient);
+    res.status(201).json(patient);
+});
+
+
+// Update a patient
+app.put('/api/patients/:id', (req, res) => {
+    const patient = patients.find(p => p.id === Number(req.params.id));
+
+
+    if (!patient) {
+        return res.status(404).send('Patient not found');
+    }
+
+
+    patient.name = req.body.name ?? patient.name;
+    patient.age = req.body.age ?? patient.age;
+    patient.disease = req.body.disease ?? patient.disease;
+
+
+    res.json(patient);
+});
+
+
+// Delete a patient
+app.delete('/api/patients/:id', (req, res) => {
+    const index = patients.findIndex(
+        p => p.id === Number(req.params.id)
+    );
+
+
+    if (index === -1) {
+        return res.status(404).send('Patient not found');
+    }
+
+
+    patients.splice(index, 1);
+    res.send('Patient deleted successfully');
+});
+
+
+app.listen(8080, () => {
+    console.log('Hospital API running on port 8080');
+});
+
+
+
+
+node index.js
+
+
+Step 4. Test the API in Postman
+Use the following requests in order.
+GET
+View all patients
+URL
+http://localhost:8080/api/patients
+Click Send. You should see Arun and Priya.
+Copy URL
+GET
+View one patient
+http://localhost:8080/api/patients/1
+Click Send. You should see Arun's record.
+Copy URL
+POST
+Add a patient
+http://localhost:8080/api/patients
+Select Body → raw → JSON and enter:
+{
+  "name": "Kumar",
+  "age": 40,
+  "disease": "Diabetes"
+}
+Click Send. Expect 201 Created.
+PUT
+Update a patient
+http://localhost:8080/api/patients/1
+Select Body → raw → JSON:
+{
+  "name": "Arun Kumar",
+  "age": 26,
+  "disease": "Fever"
+}
+Click Send.
+DELETE
+Delete a patient
+http://localhost:8080/api/patients/2
+Click Send. Expect Patient deleted successfully.
+
+
+
+
+
+
+FIREBASE:
+https://console.firebase.google.com/u/0/
+
+
+Rule:
+
+
+rules_version = '2';
+
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /students/{studentId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+
+
+firebase init hosting
+1. Are you ready to proceed? → Y
+2. Please select an option: → Use an existing project
+3. Select the Firebase project that already contains your Student Portal's Authentication and Firestore database.
+4. What do you want to use as your public directory? → dist
+5. Configure as a single-page app (rewrite all URLs to /index.html)? → Y
+6. Set up automatic builds and deploys with GitHub? → N for now.
+7. File dist/index.html already exists. Overwrite? → N if asked.
+firebase deploy
+
+
+MONGO:
+
+
+Scenario A: Only MongoDB
+PORT=5001
+MONGODB_URI=your_mongodb_connection_string
+AUTH0_DOMAIN=
+AUTH0_AUDIENCE=
+DEMO_MODE=true
+
+
+Scenario B: Only Auth0
+PORT=5001
+MONGODB_URI=
+AUTH0_DOMAIN=your-tenant.auth0.com
+AUTH0_AUDIENCE=https://hospital-management-api
+DEMO_MODE=false
+
+
+Scenario C: Only Dropbox
+PORT=5001
+MONGODB_URI=
+AUTH0_DOMAIN=
+AUTH0_AUDIENCE=
+DEMO_MODE=true
+
+
+DROPBOX_APP_KEY=your_app_key
+DROPBOX_APP_SECRET=your_app_secret
+DROPBOX_REFRESH_TOKEN=your_refresh_token
+
+
+Scenario D: All three integrations
+PORT=5001
+MONGODB_URI=your_mongodb_connection_string
+AUTH0_DOMAIN=your-tenant.auth0.com
+AUTH0_AUDIENCE=https://hospital-management-api
+DEMO_MODE=false
+
+
+DROPBOX_APP_KEY=your_app_key
+DROPBOX_APP_SECRET=your_app_secret
+DROPBOX_REFRESH_TOKEN=your_refresh_token
+
+
+
+
+DROPBOX:
+
+
+https://www.dropbox.com/developers/apps
+
+
+Callback url auth0:http://localhost:5001/api/documents/dropbox/callback
+
+
+Auth0:
+Callback url: http://localhost:5001/dashboard.html
+
+
+
+
+MPI:
+1. Install packages
+sudo apt update
+sudo apt install -y python3 mpich python3-mpi4py
+2. Create the Python file
+nano mpi_example.py
+3. MPI Python code
+Write this code inside mpi_example.py:
+from mpi4py import MPIcomm = MPI.COMM_WORLDrank = comm.Get_rank()size = comm.Get_size()print("Hello from process", rank, "out of", size)
+Save and exit nano: Press Ctrl + O, then Enter, then Ctrl + X.
+4. Run the program
+mpirun -np 2 python3 mpi_example.py
+5. Expected output
+Hello from process 0 out of 2
+Hello from process 1 out of 2
+
+
+
+
+Openmpi:
+
+
+Step 1: Install the libraries
+sudo apt update
+sudo apt install -y g++ libomp-dev
+Step 2: Create a C++ file
+nano hello_omp.cpp
+Step 3: OpenMP code
+#include <iostream>
+#include <omp.h>
+using namespace std;
+
+
+int main() {
+    #pragma omp parallel num_threads(4)
+    {
+        cout << "Hello from thread "
+             << omp_get_thread_num() << endl;
+    }
+    return 0;
+}
+Save: Ctrl + O → Enter → Ctrl + X
+Step 4: Compile the code
+g++ -fopenmp hello_omp.cpp -o hello_omp
+Step 5: Run the program
+./hello_omp
+
+
+
+
+Spark:
+Apache Spark Practical: All Commands One by One
+1. Install Java and required tools
+Command 1
+sudo apt update
+Command 2
+sudo apt install -y openjdk-17-jdk curl wget tar gzip
+Command 3
+java -version
+2. Download and extract Spark
+Command 4
+cd ~
+Command 5
+wget https://downloads.apache.org/spark/spark-4.2.0/spark-4.2.0-bin-hadoop3.tgz
+Command 6
+tar -xzf spark-4.2.0-bin-hadoop3.tgz
+Command 7
+mv spark-4.2.0-bin-hadoop3 spark
+3. Configure Spark
+Command 8
+echo 'export SPARK_HOME=$HOME/spark' >> ~/.bashrc
+Command 9
+echo 'export PATH=SPARK_HOME/bin' >> ~/.bashrc
+Command 10
+source ~/.bashrc
+4. Start Spark
+Command 11
+spark-shell
+5. Create the input file
+Exit Spark first using :quit.
+Command 12
+cd ~
+Command 13
+nano input.txt
+Enter the following text in the file:
+hello world
+hello spark
+world spark
+Save using Ctrl + O, press Enter, and then Ctrl + X.
+6. Run the Word Count programme
+Command 14: Start Spark
+spark-shell
+Command 15: Read the input file
+val inputfile = sc.textFile("input.txt")
+Command 16: Split lines into words, assign 1 to each word, and count repetitions
+val counts = inputfile.flatMap(line => line.split(" ")).map(word => (word, 1)).reduceByKey(_ + _)
+Command 17: Save the output
+counts.saveAsTextFile("output")
+Command 18: Exit Spark
+:quit
+7. Display the output
+Command 19
+cd ~/output
+Command 20
+ls
+Command 21
+cat part-00000
+Expected output
+(hello,2)
+(world,2)
+(spark,2)
+Important: If you run the programme again, delete the existing output folder first.
+rm -rf ~/output
+Do you like this personality?
+
+
+
+
+Hadoop:
+
+
+1. Install Java and SSH
+Run inside Ubuntu:
+sudo apt update
+sudo apt install -y openjdk-11-jdk ssh
+java -version
+2. Download and extract Hadoop
+cd ~
+wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.6/hadoop-3.3.6.tar.gz
+tar -xzf hadoop-3.3.6.tar.gz
+mv hadoop-3.3.6 hadoop
+If Hadoop is already installed, skip the download and rename commands.
+3. Set environment variables
+Find your Java path:
+dirname $(dirname $(readlink -f $(which java)))
+Open the environment file:
+gedit ~/.bashrc
+Add the following lines, using the actual Java path returned above:
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+export HADOOP_HOME=HADOOP_HOME
+export HADOOP_MAPRED_HOME=HADOOP_HOME
+export HADOOP_HDFS_HOME=HADOOP_HOME
+export PATH=HADOOP_HOME/bin:$HADOOP_HOME/sbin
+Save the file, then run:
+source ~/.bashrc
+4. Configure Hadoop files
+Go to the configuration folder:
+cd ~/hadoop/etc/hadoop
+A. hadoop-env.sh
+gedit hadoop-env.sh
+Set the Java path:
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+Save the file.
+B. core-site.xml
+gedit core-site.xml
+Add inside the existing <configuration> tags:
+<property>
+    <name>fs.defaultFS</name>
+    <value>hdfs://localhost:9000</value>
+</property>
+C. hdfs-site.xml
+gedit hdfs-site.xml
+Add inside <configuration>:
+<property>
+    <name>dfs.replication</name>
+    <value>3</value>
+</property>
+<property>
+    <name>dfs.name.dir</name>
+    <value>/home/YOUR_USERNAME/hadoop/data/namenode</value>
+</property>
+<property>
+    <name>dfs.data.dir</name>
+    <value>/home/YOUR_USERNAME/hadoop/data/datanode</value>
+</property>
+Replace YOUR_USERNAME with your Ubuntu username.
+D. mapred-site.xml
+gedit mapred-site.xml
+<property>
+    <name>mapreduce.framework.name</name>
+    <value>yarn</value>
+</property>
+E. yarn-site.xml
+gedit yarn-site.xml
+<property>
+    <name>yarn.nodemanager.aux-services</name>
+    <value>mapreduce_shuffle</value>
+</property>
+<property>
+    <name>yarn.nodemanager.auxservices.mapreduce.shuffle.class</name>
+    <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+</property>
+For each XML file, preserve its existing <configuration> and </configuration> tags. Save the changes.
+5. Create the data directories
+cd ~/hadoop
+mkdir -p data/namenode data/datanode
+6. Configure SSH
+ssh-keygen -t rsa
+Press Enter through the prompts to accept the defaults.
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+chmod 640 ~/.ssh/authorized_keys
+7. Format the NameNode
+Run this only for a fresh Hadoop installation.
+hdfs namenode -format
+Do not repeat this on an existing HDFS setup containing data.
+8. Start Hadoop
+Start HDFS:
+start-dfs.sh
+Check the processes:
+jps
+Start YARN:
+start-yarn.sh
+Check again:
+jps
+Expected services:
+* NameNode
+* DataNode
+* SecondaryNameNode
+* ResourceManager
+* NodeManager
+9. Open the web interfaces
+* HDFS: http://localhost:9870
+* YARN: http://localhost:8088
+10. Stop Hadoop
+stop-yarn.sh
+stop-dfs.sh
+
+
+
+
+
+
+Cloudsim:
+https://github.com/Cloudslab/cloudsim/releases/tag/cloudsim-3.0.3
+
+
+package org.cloudbus.cloudsim.examples;
+
+
+import org.cloudbus.cloudsim.*;
+import org.cloudbus.cloudsim.core.CloudSim;
+import java.util.*;
+
+
+public class BasicResourceAllocation {
+
+
+    public static void main(String[] args) throws Exception {
+
+
+        CloudSim.init(1, Calendar.getInstance(), false);
+
+
+        // Create Host
+        List<Pe> peList = new ArrayList<>();
+        peList.add(new Pe(0, new PeProvisionerSimple(1000)));
+
+
+        List<Host> hostList = new ArrayList<>();
+        hostList.add(new Host(0,
+                new RamProvisionerSimple(2048),
+                new BwProvisionerSimple(10000),
+                1000000, peList,
+                new VmSchedulerTimeShared(peList)));
+
+
+        // Create Datacenter
+        DatacenterCharacteristics dc = new DatacenterCharacteristics(
+                "x86", "Linux", "Xen", hostList,
+                10.0, 3.0, 0.05, 0.001, 0.0);
+
+
+        new Datacenter("Datacenter_0", dc,
+                new VmAllocationPolicySimple(hostList),
+                new LinkedList<Storage>(), 0);
+
+
+        // Create Broker
+        DatacenterBroker broker = new DatacenterBroker("Broker");
+        int brokerId = broker.getId();
+
+
+        // Create 2 VMs
+        List<Vm> vmList = new ArrayList<>();
+
+
+        for (int i = 0; i < 2; i++) {
+            vmList.add(new Vm(i, brokerId, 500, 1,
+                    512, 1000, 10000, "Xen",
+                    new CloudletSchedulerTimeShared()));
+        }
+
+
+        broker.submitVmList(vmList);
+
+
+        // Create 2 Cloudlets
+        List<Cloudlet> cloudletList = new ArrayList<>();
+        UtilizationModel model = new UtilizationModelFull();
+
+
+        for (int i = 0; i < 2; i++) {
+            Cloudlet c = new Cloudlet(i, 10000, 1,
+                    300, 300, model, model, model);
+            c.setUserId(brokerId);
+            cloudletList.add(c);
+        }
+
+
+        broker.submitCloudletList(cloudletList);
+
+
+        // Run Simulation
+        CloudSim.startSimulation();
+        CloudSim.stopSimulation();
+
+
+        // Print Results
+        for (Cloudlet c : broker.getCloudletReceivedList()) {
+            System.out.println("Cloudlet " + c.getCloudletId()
+                    + " | Status: "
+                    + (c.getStatus() == Cloudlet.SUCCESS
+                    ? "SUCCESS" : "FAILED")
+                    + " | VM: " + c.getVmId());
+        }
+    }
+}
+
+
+Cloudanalyst:
+
+
+https://sourceforge.net/projects/cloudanalystnetbeans/
