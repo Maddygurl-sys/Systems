@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CarePoint Hospital | Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <a class="brand" href="/dashboard.html">
+        <span class="brand-mark small">+</span>
+        <span>CarePoint<small>HOSPITAL</small></span>
+      </a>
+      <nav>
+        <a class="nav-link active" href="/dashboard.html">▦ <span>Dashboard</span></a>
+      </nav>
+      <div class="sidebar-note">
+        <span class="online-dot"></span> System Connected
+        <div id="sidebarSystemInfo" class="sidebar-status-text">MongoDB Atlas</div>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">CAREPOINT HOSPITAL PORTAL</p>
+          <h1>Hospital Management Dashboard</h1>
+        </div>
+        <div class="user-area">
+          <div>
+            <strong id="userName">Loading user…</strong>
+            <small id="userEmail"></small>
+            <span id="userModeBadge" class="mode-badge" hidden>Demo Mode</span>
+            <span id="dropboxTopPill" class="status-pill ready">Dropbox Ready</span>
+          </div>
+          <button id="logoutButton" class="secondary-button" type="button">Log out</button>
+        </div>
+      </header>
+
+      <section id="message" class="message" hidden></section>
+
+      <!-- Dashboard Statistics -->
+      <section class="stats-grid">
+        <article class="stat-card">
+          <span class="stat-label">Total patients</span>
+          <strong id="totalCount">—</strong>
+          <span class="stat-foot">All registered records</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Male patients</span>
+          <strong id="maleCount">—</strong>
+          <span class="stat-foot">From patient database</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Female patients</span>
+          <strong id="femaleCount">—</strong>
+          <span class="stat-foot">From patient database</span>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Admitted today</span>
+          <strong id="todayCount">—</strong>
+          <span class="stat-foot">Based on admission date</span>
+        </article>
+      </section>
+
+      <!-- Patient Management Panel -->
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">PATIENT MANAGEMENT</p>
+            <h2>Patient records</h2>
+          </div>
+          <button id="addPatientButton" class="primary-button" type="button">+ Add patient</button>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="filters">
+          <label class="search-box">
+            Search patient
+            <input id="search" type="search" placeholder="Search by name, ID, doctor, diagnosis…">
+          </label>
+          <label>
+            Gender
+            <select id="genderFilter">
+              <option value="">All genders</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+          <label>
+            Blood group
+            <select id="bloodFilter">
+              <option value="">All blood groups</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+          </label>
+          <label>
+            Status
+            <select id="statusFilter">
+              <option value="">All statuses</option>
+              <option value="Admitted">Admitted</option>
+              <option value="Under Observation">Under Observation</option>
+              <option value="Discharged">Discharged</option>
+            </select>
+          </label>
+          <button id="resetFiltersButton" class="secondary-button filter-reset-btn" type="button" title="Clear all filters">
+            Reset filters
+          </button>
+        </div>
+
+        <!-- Patients Table -->
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Patient ID</th>
+                <th>Full Name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Blood</th>
+                <th>Diagnosis</th>
+                <th>Assigned Doctor</th>
+                <th>Contact</th>
+                <th>Admitted</th>
+                <th>Status</th>
+                <th>Documents (Dropbox)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="patientRows">
+              <tr>
+                <td colspan="12" class="empty-cell">Loading records from database…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="table-footnote">Records are synced directly with MongoDB Atlas.</p>
+      </section>
+
+      <footer>CarePoint Hospital · Internal Staff Records Management Portal</footer>
+    </main>
+  </div>
+
+  <!-- Add / Edit Patient Modal Dialog -->
+  <dialog id="patientDialog" class="modal">
+    <form id="patientForm">
+      <div class="modal-heading">
+        <div>
+          <p class="eyebrow">PATIENT RECORD</p>
+          <h2 id="dialogTitle">Add patient</h2>
+        </div>
+        <button type="button" id="closeDialog" class="icon-button" aria-label="Close modal">×</button>
+      </div>
+
+      <div id="modalMessage" class="message error" hidden></div>
+
+      <div class="form-grid">
+        <label class="span-two">
+          Full name *
+          <input name="fullName" required maxlength="100" placeholder="e.g. John Doe">
+        </label>
+        <label>
+          Age *
+          <input name="age" type="number" min="0" max="125" required placeholder="0 - 125">
+        </label>
+        <label>
+          Gender *
+          <select name="gender" required>
+            <option value="">Select gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </label>
+        <label>
+          Blood group *
+          <select name="bloodGroup" required>
+            <option value="">Select blood group</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
+        </label>
+        <label>
+          Status *
+          <select name="status" required>
+            <option value="Admitted">Admitted</option>
+            <option value="Under Observation">Under Observation</option>
+            <option value="Discharged">Discharged</option>
+          </select>
+        </label>
+        <label class="span-two">
+          Diagnosis / Condition *
+          <input name="diagnosis" required maxlength="300" placeholder="e.g. Acute appendicitis">
+        </label>
+        <label>
+          Assigned doctor *
+          <input name="assignedDoctor" required maxlength="100" placeholder="e.g. Dr. Priya Sharma">
+        </label>
+        <label>
+          Contact phone number *
+          <input name="contactNumber" required maxlength="20" placeholder="e.g. +91 98765 43210" inputmode="tel">
+        </label>
+        <label>
+          Admission date *
+          <input id="admissionDate" name="admissionDate" type="date" required>
+        </label>
+        <label>
+          Allergies (optional)
+          <input name="allergies" maxlength="500" placeholder="e.g. Penicillin, Peanuts">
+        </label>
+        <label class="span-two">
+          Emergency contact (optional)
+          <input name="emergencyContact" maxlength="100" placeholder="e.g. Jane Doe (+91 98765 43211)">
+        </label>
+        <label class="span-two">
+          Clinical notes (optional)
+          <textarea name="notes" rows="3" maxlength="2000" placeholder="Additional observations or care plan…"></textarea>
+        </label>
+
+        <!-- Optional Document Upload to Dropbox -->
+        <div class="span-two doc-attachment-box" id="formDocSection">
+          <div class="doc-attachment-heading">
+            <strong>📁 Attach Medical Document to Dropbox (Optional)</strong>
+            <span class="muted">Cloud storage integration</span>
+          </div>
+          <div class="form-grid">
+            <label>
+              Document category
+              <select name="documentCategory" id="initialDocCategory">
+                <option value="Medical report">Medical report</option>
+                <option value="Prescription">Prescription</option>
+                <option value="Lab report">Lab report</option>
+                <option value="Discharge summary">Discharge summary</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+            <label>
+              Select document file
+              <input type="file" name="document" id="initialDocFile" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx">
+              <span class="file-hint">PDF, PNG, JPG, DOC, DOCX up to 10 MB (stored in Dropbox)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="cancelForm" class="secondary-button">Cancel</button>
+        <button type="submit" id="savePatientBtn" class="primary-button">Save patient</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- View Patient Details & Dropbox Documents Modal Dialog -->
+  <dialog id="detailsDialog" class="modal wide-modal">
+    <div class="modal-heading">
+      <div>
+        <p class="eyebrow">PATIENT DETAILS & DOCUMENTS</p>
+        <h2 id="detailsModalTitle">Patient Information</h2>
+      </div>
+      <button type="button" id="closeDetails" class="icon-button" aria-label="Close modal">×</button>
+    </div>
+
+    <div id="detailsModalMessage" class="message" hidden></div>
+
+    <div id="detailsContent"></div>
+
+    <div class="documents-section">
+      <div class="doc-header">
+        <h3>Patient Documents (Dropbox Storage)</h3>
+        <span id="dropboxStatusBadge" class="status-pill">Checking Dropbox…</span>
+      </div>
+
+      <form id="documentForm" class="upload-form">
+        <label>
+          Document category
+          <select name="category" id="documentCategory">
+            <option value="Medical report">Medical report</option>
+            <option value="Prescription">Prescription</option>
+            <option value="Lab report">Lab report</option>
+            <option value="Discharge summary">Discharge summary</option>
+            <option value="Other">Other</option>
+          </select>
+        </label>
+        <label>
+          Select file (PDF, PNG, JPG, DOC, DOCX up to 10 MB)
+          <input name="document" id="documentFileInput" type="file" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx" required>
+        </label>
+        <button class="primary-button" id="uploadDocumentBtn" type="submit">Upload to Dropbox</button>
+      </form>
+
+      <div id="documentList" class="doc-list-wrap">
+        <p class="empty-cell">Loading documents…</p>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" id="closeDetailsBottom" class="secondary-button">Close</button>
+    </div>
+  </dialog>
+
+  <script src="https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

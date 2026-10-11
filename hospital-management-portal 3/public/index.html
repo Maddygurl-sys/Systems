@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CarePoint Hospital | Welcome</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="welcome-page">
+  <main class="welcome-card">
+    <div class="brand-mark">+</div>
+    <p class="eyebrow">CAREPOINT HOSPITAL</p>
+    <h1>Care that keeps everything connected.</h1>
+    <p class="welcome-copy">A simple, secure portal for hospital staff to manage patient records, medical histories, and documents in one place.</p>
+
+    <div class="welcome-actions">
+      <button id="loginButton" class="primary-button">Log in</button>
+      <button id="signupButton" class="secondary-button">Register / Sign up</button>
+    </div>
+
+    <div id="demoAction" class="demo-box" hidden>
+      <p class="small-note">Local Exam Demo Mode is enabled on the server.</p>
+      <button id="demoButton" class="secondary-button full-width">Enter Dashboard in Demo Mode</button>
+    </div>
+
+    <p class="small-note">Authentication is powered by Auth0 Universal Login.</p>
+    <div id="message" class="message error" hidden></div>
+
+    <div class="config-warning" data-config-warning hidden>
+      <strong>Configuration Notice:</strong>
+      <p>Set your Auth0 domain, Client ID, and API audience in <code>public/js/config.js</code>, or enable <code>DEMO_MODE=true</code> in <code>.env</code> for local development.</p>
+    </div>
+
+    <div class="system-status" id="systemStatus">
+      <span>Database: <b id="dbStatus">checking…</b></span> ·
+      <span>Auth0: <b id="authStatus">checking…</b></span> ·
+      <span>Dropbox: <b id="dropboxStatus">checking…</b></span>
+    </div>
+  </main>
+
+  <script src="https://cdn.auth0.com/js/auth0-spa-js/2.1/auth0-spa-js.production.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/home.js"></script>
+</body>
+</html>
